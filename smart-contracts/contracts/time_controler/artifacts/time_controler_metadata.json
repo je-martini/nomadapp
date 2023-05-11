@@ -1,0 +1,109 @@
+{
+	"compiler": {
+		"version": "0.8.18+commit.87f61d96"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [],
+				"name": "not_owner_error",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "execute",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_target",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_value",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "_func",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "_data",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_times_tamp",
+						"type": "uint256"
+					}
+				],
+				"name": "queue",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/time_controler/time_controler.sol": "time_controler"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/time_controler/time_controler.sol": {
+			"keccak256": "0x54e7f6c0623d7c1875c0e18715c0047be7e2a0679cbf10f6d11afa2a450389a1",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://31eca146e32376ee55dfc922b94b271deab0fa45026eb11cc5095419a03abb35",
+				"dweb:/ipfs/QmTPELDNku3fKWkW5qNQBuhwWBc8URzoAZwob3BgZFJwyr"
+			]
+		}
+	},
+	"version": 1
+}
