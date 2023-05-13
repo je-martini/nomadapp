@@ -11,6 +11,7 @@ contract nomadapp {
     uint start_time;
     uint end_time;
 
+
     enum state {
         created, locked, release, inactive
     }    
@@ -22,7 +23,7 @@ contract nomadapp {
         contract_status = state.created;
         money_to_change = msg.value;
         start_time = block.timestamp;
-        end_time = start_time + (8 * 1 hours);
+        end_time = start_time + 60;
     }
 
     /// The function cannot be called at the current state.
@@ -42,16 +43,17 @@ contract nomadapp {
     }
 
     modifier only_cash_provider() {
-        if(msg.sender != cash_provider){
+        if(msg.sender == nomada){
             revert just_cash_provider();
         }
         _;
     }
 
     modifier in_state( state _state){
-        if(contract_status != _state){
+        if(contract_status == _state){
             revert invalid_state();
         }
+
         _;
     }
 
@@ -59,6 +61,7 @@ contract nomadapp {
         require(block.timestamp <= end_time, "The time is over");
         _;
     }
+
 
     function cash_provider_confirm_transaction() external in_state(state.locked) only_cash_provider time_over() payable {
         
@@ -69,7 +72,7 @@ contract nomadapp {
         contract_status = state.locked;
     }
 
-    function confirm_received() external only_cash_provider() in_state(state.locked) time_over() {
+    function confirm_received() external only_cash_provider() in_state(state.release) time_over() {
         // this funtion returns the deposit that 
         // the cash_provider made to have a colateral
         cash_provider.transfer(2 * money_to_change);
@@ -78,8 +81,10 @@ contract nomadapp {
 
 
     function abort() external {
+
         require(block.timestamp >= end_time, "The transaction still has time to finish");
-        
+
+
         if(contract_status == state.locked){
             nomada.transfer(address(this).balance/2);
             cash_provider.transfer(address(this).balance/2);
@@ -91,15 +96,8 @@ contract nomadapp {
         
     }
 
-    function get_time_left() public view time_over returns(uint256){
+        function get_time_left() public view time_over returns(uint256){
         return end_time - block.timestamp;
     }
-
-    function show_balance () public view returns(uint) {
-        return address(this).balance;
-    }
-
-    
-
 
 }
