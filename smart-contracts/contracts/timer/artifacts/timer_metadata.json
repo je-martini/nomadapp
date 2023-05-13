@@ -1,0 +1,79 @@
+{
+	"compiler": {
+		"version": "0.8.18+commit.87f61d96"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "total_time",
+						"type": "uint256"
+					}
+				],
+				"name": "end",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "get_time_left",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "start",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/timer/timer.sol": "timer"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/timer/timer.sol": {
+			"keccak256": "0x28d5e2531ac105ee027896013aeeebe46e9bbe8260cec0d0c9eee71704b5594c",
+			"license": "GPL-3.0",
+			"urls": [
+				"bzz-raw://c390ed2c56de463a606ef4130c4ec7e58621e1c7a6d790ac549f65f21f2882ac",
+				"dweb:/ipfs/Qmd8xQN2F9ByMs6etvd7Brmz6cf5p57xRGq94uK2Vzcfco"
+			]
+		}
+	},
+	"version": 1
+}

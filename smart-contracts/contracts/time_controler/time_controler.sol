@@ -160,4 +160,4 @@ contract try_time_controler{
     function get_times_tamp() external view returns(uint) {
         return block.times_tamp + 100;
     }
-}
+}   
