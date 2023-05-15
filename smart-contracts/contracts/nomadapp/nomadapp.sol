@@ -23,7 +23,7 @@ contract nomadapp {
         contract_status = state.created;
         money_to_change = msg.value;
         start_time = block.timestamp;
-        end_time = start_time + 60;
+        end_time = start_time + 40;
     }
 
     /// The function cannot be called at the current state.
@@ -34,6 +34,9 @@ contract nomadapp {
 
     /// Only the nomada can call this function
     error just_nomada();
+
+    /// Time is Over
+    error _time_over();
 
     modifier only_nomada() {
         if(msg.sender != nomada){
@@ -58,7 +61,17 @@ contract nomadapp {
     }
 
     modifier time_over(){
-        require(block.timestamp <= end_time, "The time is over");
+        if(block.timestamp >= end_time){
+           if(contract_status == state.locked){
+                nomada.transfer(address(this).balance/2);
+                cash_provider.transfer(address(this).balance);
+                revert _time_over();
+            }
+            if(contract_status == state.created){
+                nomada.transfer(address(this).balance);
+                revert _time_over();
+            } 
+        }
         _;
     }
 
@@ -75,7 +88,7 @@ contract nomadapp {
     function confirm_received() external only_cash_provider() in_state(state.release) time_over() {
         // this funtion returns the deposit that 
         // the cash_provider made to have a colateral
-        cash_provider.transfer(2 * money_to_change);
+        cash_provider.transfer(address(this).balance);
         contract_status = state.release;
     }
 
@@ -87,7 +100,7 @@ contract nomadapp {
 
         if(contract_status == state.locked){
             nomada.transfer(address(this).balance/2);
-            cash_provider.transfer(address(this).balance/2);
+            cash_provider.transfer(address(this).balance);
         }
         if(contract_status == state.created){
             nomada.transfer(address(this).balance);
@@ -96,8 +109,21 @@ contract nomadapp {
         
     }
 
-        function get_time_left() public view time_over returns(uint256){
+    function get_time_left() public view returns(uint256){
+        require(block.timestamp <= end_time, "The time is over");
         return end_time - block.timestamp;
+
     }
+    
+
+    function get_balance() public view returns(uint real_balance) {
+        real_balance = address(this).balance;
+            
+    } 
+
+
+
+
 
 }
+    
