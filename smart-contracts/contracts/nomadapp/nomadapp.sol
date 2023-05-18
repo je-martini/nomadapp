@@ -5,6 +5,7 @@ pragma solidity ^0.8.2;
 
 contract nomadapp {
 
+    bytes32 public password;
     uint public money_to_change;
     address payable public nomada;
     address payable public cash_provider;
@@ -18,12 +19,13 @@ contract nomadapp {
 
     state public contract_status;
 
-    constructor() payable {
+    constructor(bytes32 password_hashed) payable {
+        password = password_hashed;
         nomada = payable(msg.sender);
         contract_status = state.created;
         money_to_change = msg.value;
         start_time = block.timestamp;
-        end_time = start_time + 40;
+        end_time = start_time + 1 * 8 hours;
     }
 
     /// The function cannot be called at the current state.
@@ -85,9 +87,12 @@ contract nomadapp {
         contract_status = state.locked;
     }
 
-    function confirm_received() external only_cash_provider() in_state(state.release) time_over() {
+    function confirm_received(string memory _password) external only_cash_provider() in_state(state.release) time_over() {
         // this funtion returns the deposit that 
         // the cash_provider made to have a colateral
+        bytes32 _password_ = get_password_hash(_password);
+        require(password == _password_, "wrong password");
+
         cash_provider.transfer(address(this).balance);
         contract_status = state.release;
     }
@@ -121,8 +126,9 @@ contract nomadapp {
             
     } 
 
-
-
+    function get_password_hash(string memory _password) private pure returns (bytes32){
+        return keccak256(abi.encodePacked(_password));
+    }
 
 
 }
