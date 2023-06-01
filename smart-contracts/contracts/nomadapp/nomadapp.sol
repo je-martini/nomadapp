@@ -5,27 +5,32 @@ pragma solidity ^0.8.2;
 
 contract nomadapp {
 
-    bytes32 public password;
-    uint public money_to_change;
-    address payable public nomada;
-    address payable public cash_provider;
-    uint start_time;
-    uint end_time;
-
-
-    enum state {
+    enum State {
         created, locked, release, inactive
-    }    
+    }
 
-    state public contract_status;
+    struct Exchange {
+        bytes32 password;
+        uint money_to_change;
+        address payable nomada;
+        State contract_status;
+        uint start_time;
+        uint end_time;
 
-    constructor(bytes32 password_hashed) payable {
-        password = password_hashed;
-        nomada = payable(msg.sender);
-        contract_status = state.created;
-        money_to_change = msg.value;
-        start_time = block.timestamp;
-        end_time = start_time + 1 * 8 hours;
+    }
+    
+    address payable cash_provider;
+
+    Exchange[] public exchanges;
+
+        
+    function start_new_exchange(bytes32 _password_hashed) public payable  {
+        
+        uint _start_time = block.timestamp;
+        uint _end_time = _start_time + 1 * 8 hours;
+
+        Exchange memory exchange = Exchange(_password_hashed, msg.value, payable(msg.sender), State.created, _start_time, _end_time);
+        exchanges.push(exchange);
     }
 
     /// The function cannot be called at the current state.
@@ -40,37 +45,37 @@ contract nomadapp {
     /// Time is Over
     error _time_over();
 
-    modifier only_nomada() {
-        if(msg.sender != nomada){
+    modifier only_nomada(uint exchande_index) {
+        if(msg.sender != exchanges[exchande_index].nomada){
             revert just_nomada();
         }
         _;
     }
 
-    modifier only_cash_provider() {
-        if(msg.sender == nomada){
+    modifier only_cash_provider(uint exchande_index) {
+        if(msg.sender == exchanges[exchande_index].nomada){
             revert just_cash_provider();
         }
         _;
     }
 
-    modifier in_state( state _state){
-        if(contract_status == _state){
+    modifier in_state(uint exchande_index, State _state){
+        if(exchanges[exchande_index].contract_status == _state){
             revert invalid_state();
         }
 
         _;
     }
 
-    modifier time_over(){
-        if(block.timestamp >= end_time){
-           if(contract_status == state.locked){
-                nomada.transfer(address(this).balance/2);
+    modifier time_over(uint exchande_index){
+        if(block.timestamp >= exchanges[exchande_index].end_time){
+           if(exchanges[exchande_index].contract_status == State.locked){
+                exchanges[exchande_index].nomada.transfer(address(this).balance/2);
                 cash_provider.transfer(address(this).balance);
                 revert _time_over();
             }
-            if(contract_status == state.created){
-                nomada.transfer(address(this).balance);
+            if(exchanges[exchande_index].contract_status == State.created){
+                exchanges[exchande_index].nomada.transfer(address(this).balance);
                 revert _time_over();
             } 
         }
@@ -78,45 +83,45 @@ contract nomadapp {
     }
 
 
-    function cash_provider_confirm_transaction() external in_state(state.locked) only_cash_provider time_over() payable {
+    function cash_provider_confirm_transaction(uint exchande_index) external in_state(exchande_index, State.locked) only_cash_provider(exchande_index) time_over(exchande_index) payable {
         
-        require(msg.value == money_to_change, "Please send the same amount that the nomada, to do change");
+        require(msg.value == exchanges[exchande_index].money_to_change, "Please send the same amount that the nomada, to do change");
         
         cash_provider = payable(msg.sender);
         
-        contract_status = state.locked;
+        exchanges[exchande_index].contract_status = State.locked;
     }
 
-    function confirm_received(string memory _password) external only_cash_provider() in_state(state.release) time_over() {
+    function confirm_received(string memory _password, uint exchande_index) external only_cash_provider(exchande_index) in_state(exchande_index, State.release) time_over(exchande_index) {
         // this funtion returns the deposit that 
         // the cash_provider made to have a colateral
         bytes32 _password_ = get_password_hash(_password);
-        require(password == _password_, "wrong password");
+        require(exchanges[exchande_index].password == _password_, "wrong password");
 
         cash_provider.transfer(address(this).balance);
-        contract_status = state.release;
+        exchanges[exchande_index].contract_status = State.release;
     }
 
 
-    function abort() external {
+    function abort(uint exchande_index) external {
 
-        require(block.timestamp >= end_time, "The transaction still has time to finish");
+        require(block.timestamp >= exchanges[exchande_index].end_time, "The transaction still has time to finish");
 
 
-        if(contract_status == state.locked){
-            nomada.transfer(address(this).balance/2);
+        if(exchanges[exchande_index].contract_status == State.locked){
+            exchanges[exchande_index].nomada.transfer(address(this).balance/2);
             cash_provider.transfer(address(this).balance);
         }
-        if(contract_status == state.created){
-            nomada.transfer(address(this).balance);
+        if(exchanges[exchande_index].contract_status == State.created){
+            exchanges[exchande_index].nomada.transfer(address(this).balance);
         }
-        contract_status = state.inactive;
+        exchanges[exchande_index].contract_status = State.inactive;
         
     }
 
-    function get_time_left() public view returns(uint256){
-        require(block.timestamp <= end_time, "The time is over");
-        return end_time - block.timestamp;
+    function get_time_left(uint exchande_index) public view returns(uint256){
+        require(block.timestamp <= exchanges[exchande_index].end_time, "The time is over");
+        return exchanges[exchande_index].end_time - block.timestamp;
 
     }
     
