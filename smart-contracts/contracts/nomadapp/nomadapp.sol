@@ -10,14 +10,14 @@ contract nomadapp {
     }
 
     struct Exchange {
-        bytes32 password;
         uint money_to_change;
         address payable nomada;
         State contract_status;
         uint start_time;
         uint end_time;
-
     }
+
+    bytes32[] private password1;
     
     address payable cash_provider;
 
@@ -28,9 +28,11 @@ contract nomadapp {
         
         uint _start_time = block.timestamp;
         uint _end_time = _start_time + 1 * 8 hours;
+        
 
-        Exchange memory exchange = Exchange(_password_hashed, msg.value, payable(msg.sender), State.created, _start_time, _end_time);
+        Exchange memory exchange = Exchange(msg.value, payable(msg.sender), State.created, _start_time, _end_time);
         exchanges.push(exchange);
+        password1.push(_password_hashed);
     }
 
     /// The function cannot be called at the current state.
@@ -96,7 +98,7 @@ contract nomadapp {
         // this funtion returns the deposit that 
         // the cash_provider made to have a colateral
         bytes32 _password_ = get_password_hash(_password);
-        require(exchanges[exchande_index].password == _password_, "wrong password");
+        require( password1[exchande_index] == _password_, "wrong password");
 
         cash_provider.transfer(address(this).balance);
         exchanges[exchande_index].contract_status = State.release;
